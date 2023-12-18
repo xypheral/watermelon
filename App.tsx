@@ -1,117 +1,96 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import notifee, { TimestampTrigger, TriggerType } from '@notifee/react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+function HomeScreen() {
+  async function onDisplayNotification() {
+    await notifee.requestPermission();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+    const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+      sound: 'default', 
+    });
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+    await notifee.displayNotification({
+      title: 'Watermelon',
+      body: 'Watermelon is the best fruit',
+      ios: {
+        sound: 'default',
+      },
+    });        
+  }
+
+  async function onCreateTriggerNotification() {
+    const date = new Date(Date.now());
+    date.setSeconds(date.getSeconds() + 10);
+    // date.setHours(9);
+    // date.setMinutes(15);
+    // date.setSeconds(10);
+
+    const trigger: TimestampTrigger = {
+      type: TriggerType.TIMESTAMP,
+      timestamp: date.getTime(),
+    };
+
+    await notifee.createTriggerNotification(
+      {
+      title: 'Watermelon Meeting!!!!',
+      body: 'Watermelon is a fruit 🍉 🍉 🍉',
+      ios: {
+        sound: 'default',
+      }
+    },
+    trigger,
+    );
+
+    Alert.alert('Notification will trigger at ' + date);
+  }
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.text}>W a t e r m e l o n</Text>
+      
+      <Button title="Display Notification" onPress={() => onDisplayNotification()} />
+
+      <Button title="Trigger Notification" onPress={() => onCreateTriggerNotification()} />
+
     </View>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const Tab = createBottomTabNavigator();
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+function App() {
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: 'green',
+          tabBarInactiveTintColor: 'gray',
+          tabBarStyle: { display: 'flex', backgroundColor: '#90ee90' },
+        }}
+      >
+        <Tab.Screen name="Home" component={HomeScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ff8080',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  text: {
+    fontSize: 45,
+    fontFamily: 'serif',
+    marginBottom: 50,
   },
 });
 

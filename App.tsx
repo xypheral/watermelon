@@ -59,6 +59,7 @@ function HomeScreen() {
 
     </View>
   );
+
 }
 
 const Tab = createBottomTabNavigator();
